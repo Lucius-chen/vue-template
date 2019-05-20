@@ -1,11 +1,9 @@
 import router from './router'
 import store from './store'
-import NProgress from 'nprogress' // progress bar
-import 'nprogress/nprogress.css' // progress bar style
+import NProgress from 'nprogress' // Progress 进度条
+import 'nprogress/nprogress.css'// Progress 进度条样式
 import { Message } from 'element-ui'
-import { getToken } from '@/utils/auth' // getToken from cookie
-
-NProgress.configure({ showSpinner: false })// NProgress configuration
+import { getToken } from '@/utils/auth' // 验权
 
 const whiteList = ['/login'] // 不重定向白名单
 router.beforeEach((to, from, next) => {
@@ -15,9 +13,9 @@ router.beforeEach((to, from, next) => {
       next({ path: '/' })
       NProgress.done() // if current page is dashboard will not trigger	afterEach hook, so manually handle it
     } else {
-      if (store.getters.roles.length === 0) {
+      if (store.getters.name === '') {
         store.dispatch('GetInfo').then(res => { // 拉取用户信息
-          next()
+          next({ ...to, replace: true })
         }).catch((err) => {
           store.dispatch('FedLogOut').then(() => {
             Message.error(err || 'Verification failed, please login again')
@@ -32,7 +30,7 @@ router.beforeEach((to, from, next) => {
     if (whiteList.indexOf(to.path) !== -1) {
       next()
     } else {
-      next(`/login?redirect=${to.path}`) // 否则全部重定向到登录页
+      next('/login')
       NProgress.done()
     }
   }
